@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blantyre Road Network | Dijkstra's Algorithm</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#fff;--ink:#172033;--muted:#5c667a;--blue:#155eef;--line:#d8e0ed;--green:#14804a;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:#142b4a;color:#fff;padding:28px 20px}header .wrap,main{max-width:1180px;margin:auto}header h1{margin:0 0 7px;font-size:clamp(1.5rem,3vw,2.2rem)}header p{margin:0;color:#d7e5ff}
+main{padding:22px 16px 40px}.intro{line-height:1.55;color:var(--muted);margin:0 0 18px}
+.layout{display:grid;grid-template-columns:310px 1fr;gap:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 4px 16px #1720330a}
+h2{font-size:1.08rem;margin:0 0 14px}label{display:block;font-weight:650;margin:14px 0 6px}select,button{font:inherit;width:100%;padding:11px 12px;border-radius:9px;border:1px solid #c7d2e3;background:#fff;color:var(--ink)}button{cursor:pointer;font-weight:700;margin-top:12px}.primary{background:var(--blue);color:white;border-color:var(--blue)}button:hover{filter:brightness(.96)}.result{margin-top:16px;padding:14px;border-radius:10px;background:#f1f6ff;border:1px solid #d5e3ff}.result strong{display:block;margin-bottom:5px}.muted{color:var(--muted);font-size:.92rem}.route{overflow-wrap:anywhere;line-height:1.6}.status{min-height:1.3em;color:var(--red);font-size:.9rem;margin-top:8px}
+.graphpanel{min-width:0}.graphhead{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.legend{font-size:.85rem;color:var(--muted)}.legend span{display:inline-block;width:13px;height:4px;background:#94a3b8;vertical-align:middle;margin:0 5px 0 10px}.legend .active{background:#e04444}
+svg{width:100%;height:auto;min-height:420px;display:block;background:#fbfdff;border:1px solid var(--line);border-radius:10px;margin-top:12px}.edge{stroke:#9aa9bd;stroke-width:2}.edge.path{stroke:#e04444;stroke-width:4}.weight{font-size:11px;fill:#56647a;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}.node circle{fill:#e9f0fc;stroke:#3566a8;stroke-width:2}.node text{font-size:11px;fill:#172033;text-anchor:middle;font-weight:650}.node.source circle{fill:#b8f3ce;stroke:#14804a}.node.destination circle{fill:#ffe0b2;stroke:#b54708}.node.pathnode circle{stroke:#e04444;stroke-width:3}
+.steps{margin-top:18px}.steps ol{padding-left:22px;line-height:1.65;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.85rem;padding:20px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}svg{min-height:300px}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Blantyre Road Network</h1><p>Interactive Shortest Route Finder Using Dijkstra's Algorithm</p></div></header>
+<main>
+<p class="intro">This project represents selected locations around Blantyre, Malawi, as an undirected weighted graph. Each edge represents an approximate road distance in kilometres. Select two locations to calculate and highlight the shortest route.</p>
+<div class="layout">
+<section class="panel">
+<h2>Find the Shortest Route</h2>
+<label for="source">Source location</label><select id="source"></select>
+<label for="destination">Destination location</label><select id="destination"></select>
+<button class="primary" id="find">Find Shortest Path</button><button id="reset">Reset</button>
+<div class="status" id="status" role="status"></div>
+<div class="result" id="result" aria-live="polite"><strong>Ready</strong><span class="muted">Choose a source and destination, then find the shortest path.</span></div>
+<div class="steps"><h2>How Dijkstra's Algorithm Works</h2><ol><li>Set the source distance to 0 and all other distances to infinity.</li><li>Choose the unvisited location with the smallest tentative distance.</li><li>Update the distances to its neighbouring locations when a shorter route is found.</li><li>Repeat until the destination is reached or no reachable locations remain.</li><li>Trace predecessor links to recover the shortest route.</li></ol></div>
+</section>
+<section class="panel graphpanel">
+<div class="graphhead"><h2>Road Network Graph</h2><div class="legend"><span></span>Road <span class="active"></span>Shortest route</div></div>
+<p class="muted">Numbers on the connections show approximate distance in kilometres. On smaller screens, zoom in if needed.</p>
+<svg id="graph" viewBox="0 0 900 620" role="img" aria-label="Weighted road network graph"></svg>
+<p class="muted">Educational model: distances are assignment graph weights, not live navigation or traffic data.</p>
+</section>
+</div>
+</main>
+<footer>Malawi Road Network Assignment · Dijkstra's Shortest-Path Algorithm</footer>
+<script>
+const locations = [
+"", "Limbe Market","NACIT","Chichiri Mall","Kwik-Fit Chitawira","Chipiku Plus Chitawira",
+"Stereo Kamba","Blantyre Baptist Academy","Sana Cash n Carry Ginnery Corner","Mwai Wathu Hospital",
+"Mibawa Bus Stop","Mudi River-Bridge","Victoria Gardens","Njamba Freedom Park","Soche Technical College",
+"St. Columba CCAP","St. Pius Church","Zingwangwa Market","Stella Marris",
+"Total Energies Chikwawa Road Service Station","St. Montfort Catholic Parish"
+];
+const edges = [
+[1,2,2.0],[2,3,1.9],[3,8,0.9],[3,9,3.9],[3,20,2.5],[8,10,2.2],[9,10,2.5],
+[10,11,3.3],[11,12,5.3],[12,20,0.3],[11,20,6.6],[19,20,1.4],[18,19,1.4],
+[17,18,2.6],[16,17,1.1],[15,16,1.5],[13,15,0.95],[14,15,2.3],[1,14,1.6],
+[1,4,3.0],[4,5,0.8],[4,13,0.3],[5,6,1.4],[6,7,3.6],[7,20,1.9],[6,16,1.3]
+];
+const positions = {
+1:[95,110],2:[220,80],3:[350,110],4:[100,260],5:[220,300],6:[340,360],7:[480,430],
+8:[475,75],9:[505,175],10:[625,130],11:[700,255],12:[800,330],13:[220,430],14:[95,420],
+15:[350,500],16:[470,550],17:[610,520],18:[730,485],19:[815,440],20:[700,390]
+};
+const adjacency = Array.from({length:21},()=>[]);
+edges.forEach(([a,b,w])=>{adjacency[a].push([b,w]);adjacency[b].push([a,w]);});
+const sourceEl=document.getElementById('source'), destEl=document.getElementById('destination');
+for(let i=1;i<locations.length;i++){for(const sel of [sourceEl,destEl]){const o=document.createElement('option');o.value=i;o.textContent=`${i}. ${locations[i]}`;sel.appendChild(o);}}
+sourceEl.value="1";destEl.value="20";
+function dijkstra(source,destination){
+ const dist=Array(21).fill(Infinity), prev=Array(21).fill(null), visited=Array(21).fill(false);dist[source]=0;
+ for(let count=0;count<20;count++){
+  let u=-1;for(let v=1;v<=20;v++)if(!visited[v]&&(u===-1||dist[v]<dist[u]))u=v;
+  if(u===-1||dist[u]===Infinity)break;visited[u]=true;if(u===destination)break;
+  for(const [v,w] of adjacency[u])if(!visited[v]&&dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}
+ }
+ if(!Number.isFinite(dist[destination]))return {distance:Infinity,path:[]};
+ const path=[];for(let v=destination;v!==null;v=prev[v]){path.unshift(v);if(v===source)break;}
+ if(path[0]!==source)return {distance:Infinity,path:[]};
+ return {distance:dist[destination],path};
+}
+function svgEl(tag,attrs={},text=''){const el=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));if(text)el.textContent=text;return el;}
+function draw(path=[],source=null,destination=null){
+ const svg=document.getElementById('graph');svg.replaceChildren();const pathEdges=new Set();for(let i=0;i<path.length-1;i++)pathEdges.add([Math.min(path[i],path[i+1]),Math.max(path[i],path[i+1])].join('-'));
+ edges.forEach(([a,b,w])=>{const [x1,y1]=positions[a],[x2,y2]=positions[b],key=[Math.min(a,b),Math.max(a,b)].join('-');svg.appendChild(svgEl('line',{x1,y1,x2,y2,class:pathEdges.has(key)?'edge path':'edge'}));const mx=(x1+x2)/2,my=(y1+y2)/2;svg.appendChild(svgEl('text',{x:mx,y:my-6,class:'weight','text-anchor':'middle'},String(w)));});
+ for(let i=1;i<=20;i++){const [x,y]=positions[i];let cls='node';if(i===source)cls+=' source';if(i===destination)cls+=' destination';if(path.includes(i))cls+=' pathnode';const g=svgEl('g',{class:cls});g.appendChild(svgEl('circle',{cx:x,cy:y,r:17}));g.appendChild(svgEl('text',{x,y:y+4},String(i)));g.appendChild(svgEl('title',{},`${i}. ${locations[i]}`));svg.appendChild(g);}
+}
+function findRoute(){const s=Number(sourceEl.value),d=Number(destEl.value),status=document.getElementById('status'),result=document.getElementById('result');status.textContent='';
+ if(!Number.isInteger(s)||!Number.isInteger(d)||s<1||s>20||d<1||d>20){status.textContent='Error: select valid source and destination locations.';return;}
+ const r=dijkstra(s,d);draw(r.path,s,d);
+ if(!r.path.length){result.innerHTML='<strong>No route exists</strong><span class="muted">There is no connected path between these locations in the current graph.</span>';return;}
+ result.innerHTML=`<strong>Shortest distance: ${r.distance.toFixed(2)} km</strong><div class="route">${r.path.map(i=>`${i}. ${locations[i]}`).join(' → ')}</div><p class="muted">Route: ${r.path.join(' → ')}</p>`;
+}
+document.getElementById('find').addEventListener('click',findRoute);
+document.getElementById('reset').addEventListener('click',()=>{sourceEl.value='1';destEl.value='20';document.getElementById('status').textContent='';document.getElementById('result').innerHTML='<strong>Ready</strong><span class="muted">Choose a source and destination, then find the shortest path.</span>';draw();});
+draw();findRoute();
+</script>
+</body>
+</html>
