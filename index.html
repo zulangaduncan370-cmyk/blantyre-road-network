@@ -20,7 +20,7 @@ svg{width:100%;height:auto;min-height:420px;display:block;background:#fbfdff;bor
 <body>
 <header><div class="wrap"><h1>Blantyre Road Network</h1><p>Interactive Shortest Route Finder Using Dijkstra's Algorithm</p></div></header>
 <main>
-<p class="intro">This project represents selected locations around Blantyre, Malawi, as an undirected weighted graph. Each edge represents an approximate road distance in kilometres. Select two locations to calculate and highlight the shortest route.</p>
+<p class="intro">This project represents selected locations in Blantyre City, Malawi, as an undirected weighted graph. Each edge represents an approximate road distance in kilometres. Select two locations to calculate and highlight the shortest route.</p>
 <div class="layout">
 <section class="panel">
 <h2>Find the Shortest Route</h2>
@@ -33,13 +33,11 @@ svg{width:100%;height:auto;min-height:420px;display:block;background:#fbfdff;bor
 </section>
 <section class="panel graphpanel">
 <div class="graphhead"><h2>Road Network Graph</h2><div class="legend"><span></span>Road <span class="active"></span>Shortest route</div></div>
-<p class="muted">Numbers on the connections show approximate distance in kilometres. On smaller screens, zoom in if needed.</p>
 <svg id="graph" viewBox="0 0 900 620" role="img" aria-label="Weighted road network graph"></svg>
-<p class="muted">Educational model: distances are assignment graph weights, not live navigation or traffic data.</p>
 </section>
 </div>
 </main>
-<footer>Malawi Road Network Assignment · Dijkstra's Shortest-Path Algorithm</footer>
+<footer>Dijkstra's Shortest-Path Algorithm</footer>
 <script>
 const locations = [
 "", "Limbe Market","NACIT","Chichiri Mall","Kwik-Fit Chitawira","Chipiku Plus Chitawira",
