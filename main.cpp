@@ -190,12 +190,11 @@ int main() {
     addEdge(graph, 2, 3, 1.9);
     addEdge(graph, 3, 8, 0.9);
     addEdge(graph, 3, 9, 3.9);
-    addEdge(graph, 3, 20, 2.5);
     addEdge(graph, 8, 10, 2.2);
     addEdge(graph, 9, 10, 2.5);
     addEdge(graph, 10, 11, 3.3);
     addEdge(graph, 11, 12, 5.3);
-    addEdge(graph, 12, 20, 0.3);
+    addEdge(graph, 12, 20, 0.8);
     addEdge(graph, 11, 20, 6.6);
     addEdge(graph, 19, 20, 1.4);
     addEdge(graph, 18, 19, 1.4);
@@ -206,12 +205,14 @@ int main() {
     addEdge(graph, 14, 15, 2.3);
     addEdge(graph, 1, 14, 1.6);
     addEdge(graph, 1, 4, 3.0);
+    addEdge(graph, 3, 4, 1.1);
     addEdge(graph, 4, 5, 0.8);
     addEdge(graph, 4, 13, 0.3);
     addEdge(graph, 5, 6, 1.4);
     addEdge(graph, 6, 7, 3.6);
     addEdge(graph, 7, 20, 1.9);
     addEdge(graph, 6, 16, 1.3);
+    addEdge(graph, 8, 20, 2.5);
 
     // Display the source and destination of the search.
     cout << "Dijkstra's Shortest-Path Algorithm\n";
